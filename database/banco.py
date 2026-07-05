@@ -1,0 +1,93 @@
+import sqlite3
+import os
+
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'casastock.db')
+
+def get_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    # Enable foreign keys support in SQLite
+    conn.execute("PRAGMA foreign_keys = 1")
+    return conn
+
+def init_db():
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    # Tabela Produtos
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS Produtos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        categoria TEXT,
+        quantidade REAL NOT NULL DEFAULT 0,
+        quantidade_minima REAL NOT NULL DEFAULT 0,
+        unidade TEXT,
+        local TEXT,
+        observacoes TEXT,
+        data_cadastro TEXT NOT NULL
+    )
+    ''')
+    
+    # Tabela Compras
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS Compras (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        data TEXT NOT NULL,
+        mercado TEXT,
+        valor_total REAL NOT NULL DEFAULT 0,
+        forma_pagamento TEXT,
+        observacoes TEXT
+    )
+    ''')
+    
+    # Tabela ItensCompra
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS ItensCompra (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_compra INTEGER NOT NULL,
+        id_produto INTEGER NOT NULL,
+        quantidade REAL NOT NULL,
+        valor_unitario REAL NOT NULL,
+        valor_total REAL NOT NULL,
+        FOREIGN KEY (id_compra) REFERENCES Compras(id) ON DELETE CASCADE,
+        FOREIGN KEY (id_produto) REFERENCES Produtos(id)
+    )
+    ''')
+    
+    # Tabela ListaCompras
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS ListaCompras (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_produto INTEGER NOT NULL UNIQUE,
+        quantidade REAL NOT NULL DEFAULT 1,
+        status TEXT NOT NULL DEFAULT 'pendente',
+        FOREIGN KEY (id_produto) REFERENCES Produtos(id) ON DELETE CASCADE
+    )
+    ''')
+    
+    # Tabela Usuarios
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS Usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        data_cadastro TEXT NOT NULL
+    )
+    ''')
+    
+    # Inserir usuário admin padrão se não houver usuários
+    cursor.execute("SELECT COUNT(*) as count FROM Usuarios")
+    if cursor.fetchone()['count'] == 0:
+        import datetime
+        data_atual = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Senha padrão: admin (sha256)
+        hash_admin = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+        cursor.execute("INSERT INTO Usuarios (username, password_hash, data_cadastro) VALUES (?, ?, ?)",
+                       ("admin", hash_admin, data_atual))
+
+    conn.commit()
+    conn.close()
+
+if __name__ == "__main__":
+    init_db()
