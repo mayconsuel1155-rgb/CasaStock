@@ -2,13 +2,63 @@ import sqlite3
 import os
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'casastock.db')
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+class PostgresCursorWrapper:
+    def __init__(self, cursor):
+        self.cursor = cursor
+    
+    def execute(self, query, params=None):
+        # Convert ? to %s for Postgres
+        query = query.replace('?', '%s')
+        # Convert AUTOINCREMENT to SERIAL
+        query = query.replace('AUTOINCREMENT', 'SERIAL')
+        
+        if params:
+            self.cursor.execute(query, params)
+        else:
+            self.cursor.execute(query)
+            
+    def fetchone(self):
+        return self.cursor.fetchone()
+        
+    def fetchall(self):
+        return self.cursor.fetchall()
+        
+    @property
+    def lastrowid(self):
+        self.cursor.execute("SELECT LASTVAL()")
+        return self.cursor.fetchone()[0]
+
+class PostgresConnectionWrapper:
+    def __init__(self, conn):
+        self.conn = conn
+    
+    def cursor(self):
+        import psycopg2.extras
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        return PostgresCursorWrapper(cur)
+        
+    def commit(self):
+        self.conn.commit()
+        
+    def rollback(self):
+        self.conn.rollback()
+        
+    def close(self):
+        self.conn.close()
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    # Enable foreign keys support in SQLite
-    conn.execute("PRAGMA foreign_keys = 1")
-    return conn
+    if DATABASE_URL:
+        import psycopg2
+        conn = psycopg2.connect(DATABASE_URL)
+        return PostgresConnectionWrapper(conn)
+    else:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        # Enable foreign keys support in SQLite
+        conn.execute("PRAGMA foreign_keys = 1")
+        return conn
 
 def init_db():
     conn = get_connection()
