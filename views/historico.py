@@ -2,11 +2,12 @@ import flet as ft
 from services.historico_service import HistoricoService
 
 def historico_view(page: ft.Page) -> ft.Container:
+    user_id = getattr(page, 'casastock_user_id', 1)
     lista_compras_ui = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
 
     def carregar_historico():
         lista_compras_ui.controls.clear()
-        compras = HistoricoService.listar_compras()
+        compras = HistoricoService.listar_compras(user_id)
         
         for c in compras:
             card = ft.Card(
@@ -27,7 +28,7 @@ def historico_view(page: ft.Page) -> ft.Container:
         page.update()
 
     def mostrar_itens(compra_id):
-        itens = HistoricoService.obter_detalhes_compra(compra_id)
+        itens = HistoricoService.obter_detalhes_compra(compra_id, user_id)
         
         lv = ft.ListView(expand=True, spacing=10)
         for i in itens:

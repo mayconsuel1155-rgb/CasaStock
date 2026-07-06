@@ -5,12 +5,15 @@ from components.dialogs import mostrar_snackbar, mostrar_alerta
 from components.botoes import botao_primario, botao_secundario
 
 def compras_view(page: ft.Page) -> ft.Container:
+    user_id = getattr(page, 'casastock_user_id', 1)
     lista_compras_ui = ft.ResponsiveRow()
     itens_compra_atual = []
+    itens_lista = []
 
     def carregar_lista():
+        nonlocal itens_lista
         lista_compras_ui.controls.clear()
-        itens_lista = CompraService.listar_itens_lista()
+        itens_lista = CompraService.listar_itens_lista(user_id)
         itens_compra_atual.clear()
         
         if not itens_lista:
@@ -47,7 +50,7 @@ def compras_view(page: ft.Page) -> ft.Container:
                                 leading=ft.Icon(ft.Icons.SHOPPING_BAG, color=ft.Colors.ORANGE, size=30),
                                 title=ft.Text(p.nome, weight=ft.FontWeight.BOLD, size=18),
                                 subtitle=ft.Text(f"Estoque: {p.quantidade} {p.unidade} | Mín: {p.quantidade_minima}"),
-                                trailing=ft.IconButton(ft.Icons.DELETE, icon_color=ft.Colors.RED, on_click=lambda e, lid=item['lista_id']: remover_lista(lid))
+                                trailing=ft.IconButton(ft.Icons.DELETE, icon_color=ft.Colors.RED, on_click=lambda e, lid=item['lista_id']: remover_item(lid))
                             ),
                             ft.Row([
                                 tf_qtde_comprada,
@@ -60,8 +63,8 @@ def compras_view(page: ft.Page) -> ft.Container:
                 lista_compras_ui.controls.append(card)
         page.update()
 
-    def remover_lista(lista_id):
-        CompraService.remover_da_lista(lista_id)
+    def remover_item(lista_id: int):
+        CompraService.remover_da_lista(lista_id, user_id)
         mostrar_snackbar(page, "Item removido da lista!")
         carregar_lista()
 
@@ -70,7 +73,7 @@ def compras_view(page: ft.Page) -> ft.Container:
 
     def carregar_produtos_dropdown():
         dd_produto.options.clear()
-        for p in EstoqueService.listar_produtos():
+        for p in EstoqueService.listar_produtos(user_id):
             dd_produto.options.append(ft.dropdown.Option(str(p.id), p.nome))
         page.update()
 
@@ -84,7 +87,7 @@ def compras_view(page: ft.Page) -> ft.Container:
         except:
             qtde = 1.0
             
-        CompraService.adicionar_a_lista(int(dd_produto.value), qtde)
+        CompraService.adicionar_a_lista(user_id, int(dd_produto.value), qtde)
         page.pop_dialog()
         mostrar_snackbar(page, "Item adicionado à lista!")
         carregar_lista()
@@ -140,10 +143,11 @@ def compras_view(page: ft.Page) -> ft.Container:
             return
             
         sucesso = CompraService.registrar_compra(
-            mercado=tf_mercado.value,
-            forma_pagamento=dd_pagamento.value,
-            observacoes=tf_obs_compra.value,
-            itens=itens_para_salvar
+            user_id,
+            tf_mercado.value,
+            dd_pagamento.value,
+            tf_obs_compra.value,
+            itens_para_salvar
         )
         
         if sucesso:

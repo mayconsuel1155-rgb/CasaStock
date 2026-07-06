@@ -18,6 +18,7 @@ def init_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Produtos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_usuario INTEGER NOT NULL,
         nome TEXT NOT NULL,
         categoria TEXT,
         quantidade REAL NOT NULL DEFAULT 0,
@@ -33,6 +34,7 @@ def init_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Compras (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_usuario INTEGER NOT NULL,
         data TEXT NOT NULL,
         mercado TEXT,
         valor_total REAL NOT NULL DEFAULT 0,
@@ -59,7 +61,8 @@ def init_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS ListaCompras (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_produto INTEGER NOT NULL UNIQUE,
+        id_usuario INTEGER NOT NULL,
+        id_produto INTEGER NOT NULL,
         quantidade REAL NOT NULL DEFAULT 1,
         status TEXT NOT NULL DEFAULT 'pendente',
         FOREIGN KEY (id_produto) REFERENCES Produtos(id) ON DELETE CASCADE
@@ -72,6 +75,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'cliente',
         data_cadastro TEXT NOT NULL
     )
     ''')
@@ -83,8 +87,8 @@ def init_db():
         data_atual = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # Senha padrão: admin (sha256)
         hash_admin = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
-        cursor.execute("INSERT INTO Usuarios (username, password_hash, data_cadastro) VALUES (?, ?, ?)",
-                       ("admin", hash_admin, data_atual))
+        cursor.execute("INSERT INTO Usuarios (username, password_hash, role, data_cadastro) VALUES (?, ?, ?, ?)",
+                       ("admin", hash_admin, "superadmin", data_atual))
 
     conn.commit()
     conn.close()

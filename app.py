@@ -11,6 +11,7 @@ from views.compras import compras_view
 from views.historico import historico_view
 from views.configuracoes import configuracoes_view
 from views.login import get_login_view
+from views.admin_panel import admin_panel_view
 
 def main(page: ft.Page):
     page.title = "CasaStock Premium"
@@ -38,27 +39,19 @@ def main(page: ft.Page):
         nav_bar.selected_index = idx
         page.update()
 
-    destinations = [
-        {"icon": ft.Icons.DASHBOARD_OUTLINED, "selected_icon": ft.Icons.DASHBOARD, "label": "Resumo"},
-        {"icon": ft.Icons.INVENTORY_2_OUTLINED, "selected_icon": ft.Icons.INVENTORY_2, "label": "Estoque"},
-        {"icon": ft.Icons.SHOPPING_CART_OUTLINED, "selected_icon": ft.Icons.SHOPPING_CART, "label": "Compras"},
-        {"icon": ft.Icons.HISTORY_OUTLINED, "selected_icon": ft.Icons.HISTORY, "label": "Histórico"},
-        {"icon": ft.Icons.SETTINGS_OUTLINED, "selected_icon": ft.Icons.SETTINGS, "label": "Ajustes"},
-    ]
-
     nav_rail = ft.NavigationRail(
         selected_index=0,
         label_type=ft.NavigationRailLabelType.ALL,
         min_width=100,
         min_extended_width=200,
         group_alignment=-0.9,
-        destinations=[ft.NavigationRailDestination(icon=d["icon"], selected_icon=d["selected_icon"], label=d["label"]) for d in destinations],
+        destinations=[],
         on_change=nav_change,
     )
 
     nav_bar = ft.NavigationBar(
         selected_index=0,
-        destinations=[ft.NavigationBarDestination(icon=d["icon"], selected_icon=d["selected_icon"], label=d["label"]) for d in destinations],
+        destinations=[],
         on_change=nav_change,
     )
 
@@ -68,6 +61,8 @@ def main(page: ft.Page):
         elif idx == 2: return compras_view(page)
         elif idx == 3: return historico_view(page)
         elif idx == 4: return configuracoes_view(page)
+        elif idx == 5 and getattr(page, 'casastock_role', 'cliente') == 'superadmin': 
+            return admin_panel_view(page)
         return dashboard_view(page)
 
     def update_view(idx):
@@ -100,6 +95,22 @@ def main(page: ft.Page):
 
     def on_login_success():
         page.on_keyboard_event = None
+        
+        # Build dynamic menu based on role
+        dests = [
+            {"icon": ft.Icons.DASHBOARD_OUTLINED, "selected_icon": ft.Icons.DASHBOARD, "label": "Resumo"},
+            {"icon": ft.Icons.INVENTORY_2_OUTLINED, "selected_icon": ft.Icons.INVENTORY_2, "label": "Estoque"},
+            {"icon": ft.Icons.SHOPPING_CART_OUTLINED, "selected_icon": ft.Icons.SHOPPING_CART, "label": "Compras"},
+            {"icon": ft.Icons.HISTORY_OUTLINED, "selected_icon": ft.Icons.HISTORY, "label": "Histórico"},
+            {"icon": ft.Icons.SETTINGS_OUTLINED, "selected_icon": ft.Icons.SETTINGS, "label": "Ajustes"},
+        ]
+        
+        if getattr(page, 'casastock_role', 'cliente') == 'superadmin':
+            dests.append({"icon": ft.Icons.ADMIN_PANEL_SETTINGS_OUTLINED, "selected_icon": ft.Icons.ADMIN_PANEL_SETTINGS, "label": "Admin"})
+
+        nav_rail.destinations = [ft.NavigationRailDestination(icon=d["icon"], selected_icon=d["selected_icon"], label=d["label"]) for d in dests]
+        nav_bar.destinations = [ft.NavigationBarDestination(icon=d["icon"], selected_icon=d["selected_icon"], label=d["label"]) for d in dests]
+        
         handle_resize(None)
         update_view(0)
         page.update()

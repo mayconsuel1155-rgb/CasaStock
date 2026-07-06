@@ -7,6 +7,8 @@ from components.botoes import botao_primario
 from services.historico_service import HistoricoService
 
 def configuracoes_view(page: ft.Page) -> ft.Container:
+    user_id = getattr(page, 'casastock_user_id', 1)
+    
     def alterar_tema(e):
         page.theme_mode = ft.ThemeMode.DARK if page.theme_mode == ft.ThemeMode.LIGHT else ft.ThemeMode.LIGHT
         page.update()
@@ -29,7 +31,7 @@ def configuracoes_view(page: ft.Page) -> ft.Container:
 
     def zerar_gastos_mes(e):
         def confirmar():
-            HistoricoService.zerar_historico_mes()
+            HistoricoService.zerar_historico_mes(user_id)
             page.pop_dialog()
             mostrar_alerta(page, "Sucesso", "Os gastos e o histórico de compras deste mês foram apagados!")
             page.update()

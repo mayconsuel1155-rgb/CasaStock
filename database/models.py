@@ -4,6 +4,7 @@ from typing import Optional
 @dataclass
 class Produto:
     id: Optional[int]
+    id_usuario: int
     nome: str
     categoria: str
     quantidade: float
@@ -16,6 +17,7 @@ class Produto:
 @dataclass
 class Compra:
     id: Optional[int]
+    id_usuario: int
     data: str
     mercado: str
     valor_total: float
@@ -34,6 +36,7 @@ class ItemCompra:
 @dataclass
 class ListaCompra:
     id: Optional[int]
+    id_usuario: int
     id_produto: int
     quantidade: float
     status: str
@@ -43,4 +46,5 @@ class Usuario:
     id: Optional[int]
     username: str
     password_hash: str
+    role: str
     data_cadastro: str

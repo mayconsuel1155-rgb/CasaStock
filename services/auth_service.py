@@ -10,7 +10,7 @@ class AuthService:
         return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
     @staticmethod
-    def login(username: str, password: str) -> bool:
+    def login(username: str, password: str) -> dict:
         conn = get_connection()
         cursor = conn.cursor()
         
@@ -21,8 +21,8 @@ class AuthService:
         if row:
             # Check if password matches
             if row['password_hash'] == AuthService._hash_password(password):
-                return True
-        return False
+                return {"success": True, "id": row['id'], "role": row['role'], "username": row['username']}
+        return {"success": False}
 
     @staticmethod
     def register(username: str, password: str) -> bool:

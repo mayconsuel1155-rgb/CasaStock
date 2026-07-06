@@ -3,7 +3,8 @@ from services.historico_service import HistoricoService
 from components.cards import card_resumo
 
 def dashboard_view(page: ft.Page) -> ft.Container:
-    resumo = HistoricoService.obter_resumo_dashboard()
+    user_id = getattr(page, 'casastock_user_id', 1)
+    resumo = HistoricoService.obter_resumo_dashboard(user_id)
     
     return ft.Container(
         content=ft.Column(

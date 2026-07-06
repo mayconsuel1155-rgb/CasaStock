@@ -20,7 +20,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
 
     def carregar_produtos(e=None):
         lista_produtos_ui.controls.clear()
-        produtos = EstoqueService.listar_produtos()
+        produtos = EstoqueService.listar_produtos(user_id)
         for p in produtos:
             
             # Checar se precisa sugerir lista de compras (RN004)
@@ -63,8 +63,8 @@ def estoque_view(page: ft.Page) -> ft.Container:
             lista_produtos_ui.controls.append(card)
         page.update()
 
-    def adicionar_lista(produto_id):
-        CompraService.adicionar_a_lista(produto_id)
+    def adicionar_lista(produto_id: int):
+        CompraService.adicionar_a_lista(user_id, produto_id)
         mostrar_snackbar(page, "Item adicionado à lista de compras!")
         carregar_produtos()
 
@@ -72,7 +72,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
         mostrar_confirmacao(page, "Excluir Produto", "Tem certeza que deseja excluir este produto?", lambda: excluir_produto(produto_id))
 
     def excluir_produto(produto_id):
-        EstoqueService.excluir_produto(produto_id)
+        EstoqueService.excluir_produto(produto_id, user_id)
         mostrar_snackbar(page, "Produto excluído com sucesso!")
         carregar_produtos()
 
@@ -90,6 +90,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
 
         p = Produto(
             id=int(tf_id.value) if tf_id.value else None,
+            id_usuario=user_id,
             nome=tf_nome.value,
             categoria=tf_categoria.value,
             quantidade=qtde,

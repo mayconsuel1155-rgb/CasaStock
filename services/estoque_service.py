@@ -5,12 +5,12 @@ from typing import List
 
 class EstoqueService:
     @staticmethod
-    def listar_produtos(pesquisa: str = "", categoria: str = "") -> List[Produto]:
+    def listar_produtos(id_usuario: int, pesquisa: str = "", categoria: str = "") -> List[Produto]:
         conn = get_connection()
         cursor = conn.cursor()
         
-        query = "SELECT * FROM Produtos WHERE 1=1"
-        params = []
+        query = "SELECT * FROM Produtos WHERE id_usuario = ?"
+        params = [id_usuario]
         
         if pesquisa:
             query += " AND (nome LIKE ? OR observacoes LIKE ?)"
@@ -29,10 +29,10 @@ class EstoqueService:
         return [Produto(**dict(row)) for row in rows]
         
     @staticmethod
-    def obter_produto(produto_id: int) -> Produto:
+    def obter_produto(produto_id: int, id_usuario: int) -> Produto:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Produtos WHERE id=?", (produto_id,))
+        cursor.execute("SELECT * FROM Produtos WHERE id=? AND id_usuario=?", (produto_id, id_usuario))
         row = cursor.fetchone()
         conn.close()
         return Produto(**dict(row)) if row else None
@@ -50,15 +50,15 @@ class EstoqueService:
                 UPDATE Produtos SET 
                     nome=?, categoria=?, quantidade=?, quantidade_minima=?, 
                     unidade=?, local=?, observacoes=?
-                WHERE id=?
+                WHERE id=? AND id_usuario=?
             ''', (produto.nome, produto.categoria, produto.quantidade, 
                   produto.quantidade_minima, produto.unidade, produto.local, 
-                  produto.observacoes, produto.id))
+                  produto.observacoes, produto.id, produto.id_usuario))
         else:
             cursor.execute('''
-                INSERT INTO Produtos (nome, categoria, quantidade, quantidade_minima, unidade, local, observacoes, data_cadastro)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (produto.nome, produto.categoria, produto.quantidade, 
+                INSERT INTO Produtos (id_usuario, nome, categoria, quantidade, quantidade_minima, unidade, local, observacoes, data_cadastro)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (produto.id_usuario, produto.nome, produto.categoria, produto.quantidade, 
                   produto.quantidade_minima, produto.unidade, produto.local, 
                   produto.observacoes, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             produto.id = cursor.lastrowid
@@ -68,20 +68,20 @@ class EstoqueService:
         return produto
 
     @staticmethod
-    def excluir_produto(produto_id: int):
+    def excluir_produto(produto_id: int, id_usuario: int):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM ItensCompra WHERE id_produto=?", (produto_id,))
-        cursor.execute("DELETE FROM ListaCompras WHERE id_produto=?", (produto_id,))
-        cursor.execute("DELETE FROM Produtos WHERE id=?", (produto_id,))
+        cursor.execute("DELETE FROM ItensCompra WHERE id_produto IN (SELECT id FROM Produtos WHERE id=? AND id_usuario=?)", (produto_id, id_usuario))
+        cursor.execute("DELETE FROM ListaCompras WHERE id_produto=? AND id_usuario=?", (produto_id, id_usuario))
+        cursor.execute("DELETE FROM Produtos WHERE id=? AND id_usuario=?", (produto_id, id_usuario))
         conn.commit()
         conn.close()
         
     @staticmethod
-    def obter_categorias():
+    def obter_categorias(id_usuario: int):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT DISTINCT categoria FROM Produtos WHERE categoria != '' ORDER BY categoria")
+        cursor.execute("SELECT DISTINCT categoria FROM Produtos WHERE categoria != '' AND id_usuario = ? ORDER BY categoria", (id_usuario,))
         rows = cursor.fetchall()
         conn.close()
         return [row['categoria'] for row in rows]

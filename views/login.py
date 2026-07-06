@@ -11,8 +11,11 @@ def get_login_view(page: ft.Page, on_login_success):
             mostrar_snackbar(page, "Preencha usuário e senha!", ft.Colors.RED)
             return
             
-        if AuthService.login(tf_username.value, tf_password.value):
-            page.casastock_user = tf_username.value
+        auth_result = AuthService.login(tf_username.value, tf_password.value)
+        if auth_result.get("success"):
+            page.casastock_user = auth_result["username"]
+            page.casastock_user_id = auth_result["id"]
+            page.casastock_role = auth_result["role"]
             on_login_success()
         else:
             mostrar_snackbar(page, "Usuário ou senha incorretos!", ft.Colors.RED)
