@@ -33,11 +33,13 @@ def estoque_view(page: ft.Page) -> ft.Container:
             card = ft.Container(
                 content=ft.Container(
                     padding=15,
-                    bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
-                    border_radius=15,
-                    border=ft.border.all(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
-                    shadow=ft.BoxShadow(
-                        spread_radius=1, blur_radius=10, color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK), offset=ft.Offset(0, 4)
+                    bgcolor="#FFFFFF",
+                    border_radius=8,
+                    border=ft.border.Border(
+                        top=ft.border.BorderSide(1, "#E5E5E5"),
+                        bottom=ft.border.BorderSide(1, "#E5E5E5"),
+                        left=ft.border.BorderSide(1, "#E5E5E5"),
+                        right=ft.border.BorderSide(1, "#E5E5E5")
                     ),
                     content=ft.Column([
                         ft.ListTile(
@@ -51,7 +53,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
                         ),
                         # Botão para adicionar a lista caso estoque baixo
                         ft.Row([
-                            ft.TextButton("Comprar", icon=ft.Icons.ADD_SHOPPING_CART, 
+                            ft.OutlinedButton("Comprar", icon=ft.Icons.ADD_SHOPPING_CART, 
                                           on_click=lambda e, pid=p.id: adicionar_lista(pid))
                         ], alignment=ft.MainAxisAlignment.END, visible=(p.quantidade <= p.quantidade_minima))
                     ])

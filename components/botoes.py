@@ -6,7 +6,10 @@ def botao_primario(texto: str, on_click, icone: str = None) -> ft.ElevatedButton
         icon=icone,
         on_click=on_click,
         style=ft.ButtonStyle(
-            shape=ft.RoundedRectangleBorder(radius=8),
+            shape=ft.RoundedRectangleBorder(radius=6),
+            elevation=0,
+            bgcolor=ft.Colors.BLUE_GREY_900,
+            color=ft.Colors.WHITE,
         )
     )
 
@@ -16,7 +19,8 @@ def botao_secundario(texto: str, on_click, icone: str = None) -> ft.OutlinedButt
         icon=icone,
         on_click=on_click,
         style=ft.ButtonStyle(
-            shape=ft.RoundedRectangleBorder(radius=8),
+            shape=ft.RoundedRectangleBorder(radius=6),
+            color=ft.Colors.BLUE_GREY_900,
         )
     )
 

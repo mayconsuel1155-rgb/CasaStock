@@ -4,6 +4,7 @@ import os
 from components.dialogs import mostrar_snackbar, mostrar_alerta
 from services.auth_service import AuthService
 from components.botoes import botao_primario
+from services.historico_service import HistoricoService
 
 def configuracoes_view(page: ft.Page) -> ft.Container:
     def alterar_tema(e):
@@ -25,6 +26,16 @@ def configuracoes_view(page: ft.Page) -> ft.Container:
             mostrar_snackbar(page, f"Backup realizado com sucesso: casastock_backup_{timestamp}.db")
         except Exception as ex:
             mostrar_snackbar(page, f"Erro ao fazer backup: {str(ex)}", ft.Colors.RED)
+
+    def zerar_gastos_mes(e):
+        def confirmar():
+            HistoricoService.zerar_historico_mes()
+            page.pop_dialog()
+            mostrar_alerta(page, "Sucesso", "Os gastos e o histórico de compras deste mês foram apagados!")
+            page.update()
+            
+        from components.dialogs import mostrar_confirmacao
+        mostrar_confirmacao(page, "Zerar Gastos", "Tem certeza que deseja apagar todo o histórico de compras deste mês? Esta ação não pode ser desfeita.", confirmar)
 
     tf_nova_senha = ft.TextField(label="Nova Senha", password=True, can_reveal_password=True, width=300)
     
@@ -73,6 +84,13 @@ def configuracoes_view(page: ft.Page) -> ft.Container:
                     leading=ft.Icon(icon=ft.Icons.INFO),
                     title=ft.Text("Sobre o CasaStock"),
                     subtitle=ft.Text("Versão 1.0 - Controle de Estoque Doméstico")
+                ),
+                ft.Divider(),
+                ft.ListTile(
+                    leading=ft.Icon(icon=ft.Icons.DELETE_SWEEP, color=ft.Colors.RED),
+                    title=ft.Text("Zerar Gastos do Mês"),
+                    subtitle=ft.Text("Apaga o histórico de compras deste mês"),
+                    on_click=zerar_gastos_mes
                 ),
                 ft.Divider(),
                 ft.ListTile(

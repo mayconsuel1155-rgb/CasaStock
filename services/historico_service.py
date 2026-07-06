@@ -65,3 +65,18 @@ class HistoricoService:
         
         conn.close()
         return resumo
+
+    @staticmethod
+    def zerar_historico_mes():
+        from datetime import datetime
+        mes_atual = datetime.now().strftime("%Y-%m")
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Delete items first to maintain referential integrity
+        cursor.execute("DELETE FROM ItensCompra WHERE id_compra IN (SELECT id FROM Compras WHERE data LIKE ?)", (f"{mes_atual}%",))
+        # Delete purchases
+        cursor.execute("DELETE FROM Compras WHERE data LIKE ?", (f"{mes_atual}%",))
+        
+        conn.commit()
+        conn.close()

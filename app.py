@@ -17,13 +17,14 @@ def main(page: ft.Page):
     page.window.width = 1000
     page.window.height = 800
     page.window.min_width = 350
-    page.theme_mode = ft.ThemeMode.DARK
+    page.theme_mode = ft.ThemeMode.LIGHT
+    page.bgcolor = "#F9F8F6" # Fundo areia/gelo do Claude
     
-    # Premium Theme
+    # Minimalist Theme
     page.theme = ft.Theme(
-        color_scheme_seed=ft.Colors.INDIGO,
-        font_family="Roboto",
-        visual_density=ft.ThemeVisualDensity.COMFORTABLE
+        color_scheme_seed=ft.Colors.BLUE_GREY,
+        font_family="Inter, Roboto, sans-serif",
+        visual_density=ft.VisualDensity.COMFORTABLE
     )
 
     init_db()

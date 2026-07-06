@@ -6,10 +6,9 @@ def card_resumo(titulo: str, valor: str, icone: str, cor: str) -> ft.Container:
         content=ft.Row(
             controls=[
                 ft.Container(
-                    content=ft.Icon(icon=icone, size=40, color=cor),
+                    content=ft.Icon(icon=icone, size=30, color=cor),
                     padding=10,
-                    bgcolor=ft.Colors.with_opacity(0.1, cor),
-                    border_radius=10,
+                    bgcolor="transparent",
                 ),
                 ft.Column(
                     controls=[
@@ -23,14 +22,13 @@ def card_resumo(titulo: str, valor: str, icone: str, cor: str) -> ft.Container:
             alignment=ft.MainAxisAlignment.START,
         ),
         padding=20,
-        bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
-        border_radius=15,
-        border=ft.border.all(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
-        shadow=ft.BoxShadow(
-            spread_radius=1,
-            blur_radius=15,
-            color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK),
-            offset=ft.Offset(0, 4),
+        bgcolor="#FFFFFF",
+        border_radius=8,
+        border=ft.border.Border(
+            top=ft.border.BorderSide(1, "#E5E5E5"),
+            bottom=ft.border.BorderSide(1, "#E5E5E5"),
+            left=ft.border.BorderSide(1, "#E5E5E5"),
+            right=ft.border.BorderSide(1, "#E5E5E5")
         ),
-        # Remove expand=True for ResponsiveRow compatibility
+        # Remove shadow and expand
     )
