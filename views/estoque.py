@@ -6,6 +6,7 @@ from components.dialogs import mostrar_snackbar, mostrar_confirmacao
 from components.botoes import botao_primario, botao_icone
 
 def estoque_view(page: ft.Page) -> ft.Container:
+    user_id = getattr(page, 'casastock_user_id', 1)
     lista_produtos_ui = ft.ResponsiveRow()
     
     # Campos Formulário
