@@ -33,13 +33,13 @@ def estoque_view(page: ft.Page) -> ft.Container:
             card = ft.Container(
                 content=ft.Container(
                     padding=15,
-                    bgcolor="#FFFFFF",
+                    bgcolor=ft.Colors.SURFACE,
                     border_radius=8,
                     border=ft.border.Border(
-                        top=ft.border.BorderSide(1, "#E5E5E5"),
-                        bottom=ft.border.BorderSide(1, "#E5E5E5"),
-                        left=ft.border.BorderSide(1, "#E5E5E5"),
-                        right=ft.border.BorderSide(1, "#E5E5E5")
+                        top=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT),
+                        bottom=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT),
+                        left=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT),
+                        right=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT)
                     ),
                     content=ft.Column([
                         ft.ListTile(

@@ -18,7 +18,6 @@ def main(page: ft.Page):
     page.window.height = 800
     page.window.min_width = 350
     page.theme_mode = ft.ThemeMode.LIGHT
-    page.bgcolor = "#F9F8F6" # Fundo areia/gelo do Claude
     
     # Minimalist Theme
     page.theme = ft.Theme(

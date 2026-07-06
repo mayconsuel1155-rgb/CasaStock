@@ -22,13 +22,13 @@ def card_resumo(titulo: str, valor: str, icone: str, cor: str) -> ft.Container:
             alignment=ft.MainAxisAlignment.START,
         ),
         padding=20,
-        bgcolor="#FFFFFF",
+        bgcolor=ft.Colors.SURFACE,
         border_radius=8,
         border=ft.border.Border(
-            top=ft.border.BorderSide(1, "#E5E5E5"),
-            bottom=ft.border.BorderSide(1, "#E5E5E5"),
-            left=ft.border.BorderSide(1, "#E5E5E5"),
-            right=ft.border.BorderSide(1, "#E5E5E5")
+            top=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT),
+            bottom=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT),
+            left=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT),
+            right=ft.border.BorderSide(1, ft.Colors.OUTLINE_VARIANT)
         ),
         # Remove shadow and expand
     )
