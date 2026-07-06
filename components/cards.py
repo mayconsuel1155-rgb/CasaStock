@@ -23,7 +23,14 @@ def card_resumo(titulo: str, valor: str, icone: str, cor: str) -> ft.Container:
             alignment=ft.MainAxisAlignment.START,
         ),
         padding=20,
-        bgcolor=ft.Colors.SURFACE,
+        bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
         border_radius=15,
-        expand=True,
+        border=ft.border.all(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+        shadow=ft.BoxShadow(
+            spread_radius=1,
+            blur_radius=15,
+            color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK),
+            offset=ft.Offset(0, 4),
+        ),
+        # Remove expand=True for ResponsiveRow compatibility
     )

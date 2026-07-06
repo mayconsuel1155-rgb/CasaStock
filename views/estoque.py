@@ -6,7 +6,7 @@ from components.dialogs import mostrar_snackbar, mostrar_confirmacao
 from components.botoes import botao_primario, botao_icone
 
 def estoque_view(page: ft.Page) -> ft.Container:
-    lista_produtos_ui = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
+    lista_produtos_ui = ft.ResponsiveRow()
     
     # Campos Formulário
     tf_id = ft.TextField(visible=False)
@@ -30,14 +30,20 @@ def estoque_view(page: ft.Page) -> ft.Container:
             elif p.quantidade <= p.quantidade_minima:
                 cor_estoque = ft.Colors.ORANGE
                 
-            card = ft.Card(
+            card = ft.Container(
                 content=ft.Container(
-                    padding=10,
+                    padding=15,
+                    bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
+                    border_radius=15,
+                    border=ft.border.all(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+                    shadow=ft.BoxShadow(
+                        spread_radius=1, blur_radius=10, color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK), offset=ft.Offset(0, 4)
+                    ),
                     content=ft.Column([
                         ft.ListTile(
-                            leading=ft.Icon(ft.Icons.INVENTORY_2, color=cor_estoque),
-                            title=ft.Text(p.nome, weight=ft.FontWeight.BOLD),
-                            subtitle=ft.Text(f"Categoria: {p.categoria} | Qtde: {p.quantidade} {p.unidade} (Mín: {p.quantidade_minima})"),
+                            leading=ft.Icon(ft.Icons.INVENTORY_2, color=cor_estoque, size=30),
+                            title=ft.Text(p.nome, weight=ft.FontWeight.BOLD, size=18),
+                            subtitle=ft.Text(f"{p.categoria}\nQtde: {p.quantidade} {p.unidade} (Mín: {p.quantidade_minima})"),
                             trailing=ft.Row([
                                 botao_icone(ft.Icons.EDIT, lambda e, prod=p: abrir_form(prod), cor=ft.Colors.BLUE),
                                 botao_icone(ft.Icons.DELETE, lambda e, prod=p: confirmar_exclusao(prod.id), cor=ft.Colors.RED),
@@ -45,11 +51,12 @@ def estoque_view(page: ft.Page) -> ft.Container:
                         ),
                         # Botão para adicionar a lista caso estoque baixo
                         ft.Row([
-                            ft.TextButton("Adicionar à Lista de Compras", icon=ft.Icons.ADD_SHOPPING_CART, 
+                            ft.TextButton("Comprar", icon=ft.Icons.ADD_SHOPPING_CART, 
                                           on_click=lambda e, pid=p.id: adicionar_lista(pid))
                         ], alignment=ft.MainAxisAlignment.END, visible=(p.quantidade <= p.quantidade_minima))
                     ])
-                )
+                ),
+                col={"sm": 12, "md": 6, "lg": 4}
             )
             lista_produtos_ui.controls.append(card)
         page.update()
@@ -144,6 +151,6 @@ def estoque_view(page: ft.Page) -> ft.Container:
                 ft.Text("Estoque", size=30, weight=ft.FontWeight.BOLD),
                 botao_primario("Novo Produto", lambda e: abrir_form(), ft.Icons.ADD)
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            ft.Divider(),
-            lista_produtos_ui
-        ], scroll=ft.ScrollMode.AUTO, expand=True), padding=20, expand=True)
+            ft.Divider(color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+            ft.Column([lista_produtos_ui], scroll=ft.ScrollMode.AUTO, expand=True)
+        ], expand=True), padding=20, expand=True)

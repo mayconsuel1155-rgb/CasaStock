@@ -5,7 +5,7 @@ from components.dialogs import mostrar_snackbar, mostrar_alerta
 from components.botoes import botao_primario, botao_secundario
 
 def compras_view(page: ft.Page) -> ft.Container:
-    lista_compras_ui = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
+    lista_compras_ui = ft.ResponsiveRow()
     itens_compra_atual = []
 
     def carregar_lista():
@@ -31,22 +31,29 @@ def compras_view(page: ft.Page) -> ft.Container:
                 }
                 itens_compra_atual.append(item_dict)
 
-                card = ft.Card(
+                card = ft.Container(
                     content=ft.Container(
-                        padding=10,
+                        padding=15,
+                        bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
+                        border_radius=15,
+                        border=ft.border.all(1, ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+                        shadow=ft.BoxShadow(
+                            spread_radius=1, blur_radius=10, color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK), offset=ft.Offset(0, 4)
+                        ),
                         content=ft.Column([
                             ft.ListTile(
-                                leading=ft.Icon(ft.Icons.SHOPPING_BAG, color=ft.Colors.ORANGE),
-                                title=ft.Text(p.nome, weight=ft.FontWeight.BOLD),
-                                subtitle=ft.Text(f"Estoque atual: {p.quantidade} {p.unidade} | Mínimo: {p.quantidade_minima}"),
+                                leading=ft.Icon(ft.Icons.SHOPPING_BAG, color=ft.Colors.ORANGE, size=30),
+                                title=ft.Text(p.nome, weight=ft.FontWeight.BOLD, size=18),
+                                subtitle=ft.Text(f"Estoque: {p.quantidade} {p.unidade} | Mín: {p.quantidade_minima}"),
                                 trailing=ft.IconButton(ft.Icons.DELETE, icon_color=ft.Colors.RED, on_click=lambda e, lid=item['lista_id']: remover_lista(lid))
                             ),
                             ft.Row([
                                 tf_qtde_comprada,
                                 tf_valor_unit
-                            ], alignment=ft.MainAxisAlignment.END)
+                            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
                         ])
-                    )
+                    ),
+                    col={"sm": 12, "md": 6, "lg": 4}
                 )
                 lista_compras_ui.controls.append(card)
         page.update()
@@ -168,8 +175,8 @@ def compras_view(page: ft.Page) -> ft.Container:
                         botao_primario("Finalizar Compra", abrir_finalizar, ft.Icons.CHECK)
                     ])
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                ft.Divider(),
-                lista_compras_ui
+                ft.Divider(color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+                ft.Column([lista_compras_ui], scroll=ft.ScrollMode.AUTO, expand=True)
             ],
             scroll=ft.ScrollMode.AUTO,
             expand=True

@@ -1,4 +1,10 @@
-import flet as ft
+import re
+
+with open('app.py', 'r', encoding='utf-8') as f:
+    app_code = f.read()
+
+# I will just write a whole new app.py, it's easier and cleaner.
+new_app = """import flet as ft
 import sys
 import os
 
@@ -123,3 +129,7 @@ def main(page: ft.Page):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port, host="0.0.0.0")
+"""
+
+with open('app.py', 'w', encoding='utf-8') as f:
+    f.write(new_app)
