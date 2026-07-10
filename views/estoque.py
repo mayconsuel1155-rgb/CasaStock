@@ -60,12 +60,10 @@ def estoque_view(page: ft.Page, scan_code=None) -> ft.Container:
 
     def handle_scan_estoque(code):
         tf_codigo_barras.value = code
-        try:
-            page.show_dialog(dialog_form)
-        except Exception:
-            dialog_form.open = False
-            page.update()
-            page.show_dialog(dialog_form)
+        if dialog_form not in page.overlay:
+            page.overlay.append(dialog_form)
+        dialog_form.open = True
+        page.update()
         buscar_produto_por_codigo(None)
         page.update()
 

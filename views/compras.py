@@ -85,12 +85,10 @@ def compras_view(page: ft.Page, scan_code=None) -> ft.Container:
 
     def handle_scan_compras(code):
         tf_codigo_barras_add.value = code
-        try:
-            page.show_dialog(dialog_add)
-        except Exception:
-            dialog_add.open = False
-            page.update()
-            page.show_dialog(dialog_add)
+        if dialog_add not in page.overlay:
+            page.overlay.append(dialog_add)
+        dialog_add.open = True
+        page.update()
         buscar_produto_lista(None)
         page.update()
 
