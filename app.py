@@ -25,8 +25,15 @@ def main(page: ft.Page):
             nav_bar.selected_index = 1
             page.update()
             
-            if hasattr(page, "on_scan_estoque"):
-                page.on_scan_estoque(code)
+            def process_estoque():
+                import time
+                time.sleep(0.5)
+                if hasattr(page, "on_scan_estoque"):
+                    page.on_scan_estoque(code)
+            
+            import threading
+            threading.Thread(target=process_estoque).start()
+            
             page.route = "/" 
             page.update()
         elif page.route.startswith("/scan_compras/"):
@@ -36,8 +43,15 @@ def main(page: ft.Page):
             nav_bar.selected_index = 2
             page.update()
             
-            if hasattr(page, "on_scan_compras"):
-                page.on_scan_compras(code)
+            def process_compras():
+                import time
+                time.sleep(0.5)
+                if hasattr(page, "on_scan_compras"):
+                    page.on_scan_compras(code)
+            
+            import threading
+            threading.Thread(target=process_compras).start()
+            
             page.route = "/" 
             page.update()
 
