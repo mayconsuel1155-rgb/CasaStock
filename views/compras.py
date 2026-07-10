@@ -85,6 +85,8 @@ def compras_view(page: ft.Page) -> ft.Container:
 
     def handle_scan_compras(code):
         page.dialog = dialog_add
+        dialog_add.open = False
+        page.update()
         dialog_add.open = True
         tf_codigo_barras_add.value = code
         page.update()
@@ -134,6 +136,8 @@ def compras_view(page: ft.Page) -> ft.Container:
         tf_codigo_barras_add.value = ""
         carregar_produtos_dropdown()
         page.dialog = dialog_add
+        dialog_add.open = False
+        page.update()
         dialog_add.open = True
         page.update()
 

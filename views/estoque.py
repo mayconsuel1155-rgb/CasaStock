@@ -60,6 +60,8 @@ def estoque_view(page: ft.Page) -> ft.Container:
 
     def handle_scan_estoque(code):
         page.dialog = dialog_form
+        dialog_form.open = False
+        page.update()
         dialog_form.open = True
         tf_codigo_barras.value = code
         page.update()
@@ -211,6 +213,8 @@ def estoque_view(page: ft.Page) -> ft.Container:
             tf_obs.value = ""
             
         page.dialog = dialog_form
+        dialog_form.open = False
+        page.update()
         dialog_form.open = True
         page.update()
 
