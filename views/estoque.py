@@ -59,9 +59,8 @@ def estoque_view(page: ft.Page) -> ft.Container:
              mostrar_snackbar(page, "Erro ao buscar produto na internet.", ft.Colors.RED)
 
     def handle_scan_estoque(code):
-        page.dialog = dialog_form
-        dialog_form.open = False
-        page.update()
+        if page.dialog != dialog_form:
+            page.dialog = dialog_form
         dialog_form.open = True
         tf_codigo_barras.value = code
         page.update()
@@ -187,7 +186,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
     )
 
     def fechar_form():
-        page.pop_dialog()
+        dialog_form.open = False
         page.update()
 
     def abrir_form(produto=None):
@@ -212,11 +211,12 @@ def estoque_view(page: ft.Page) -> ft.Container:
             tf_local.value = ""
             tf_obs.value = ""
             
-        page.dialog = dialog_form
-        dialog_form.open = False
-        page.update()
-        dialog_form.open = True
-        page.update()
+        try:
+            page.show_dialog(dialog_form)
+        except Exception:
+            dialog_form.open = False
+            page.update()
+            page.show_dialog(dialog_form)
 
     carregar_produtos()
 

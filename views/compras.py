@@ -84,9 +84,8 @@ def compras_view(page: ft.Page) -> ft.Container:
             mostrar_snackbar(page, "Produto não encontrado no estoque.", ft.Colors.RED)
 
     def handle_scan_compras(code):
-        page.dialog = dialog_add
-        dialog_add.open = False
-        page.update()
+        if page.dialog != dialog_add:
+            page.dialog = dialog_add
         dialog_add.open = True
         tf_codigo_barras_add.value = code
         page.update()
@@ -135,14 +134,15 @@ def compras_view(page: ft.Page) -> ft.Container:
     def abrir_add_manual(e):
         tf_codigo_barras_add.value = ""
         carregar_produtos_dropdown()
-        page.dialog = dialog_add
-        dialog_add.open = False
-        page.update()
-        dialog_add.open = True
-        page.update()
+        try:
+            page.show_dialog(dialog_add)
+        except Exception:
+            dialog_add.open = False
+            page.update()
+            page.show_dialog(dialog_add)
 
     def fechar_dialog(dialog):
-        page.pop_dialog()
+        dialog.open = False
         page.update()
 
     tf_mercado = ft.TextField(label="Mercado", expand=True)
