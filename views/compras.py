@@ -84,6 +84,8 @@ def compras_view(page: ft.Page) -> ft.Container:
             mostrar_snackbar(page, "Produto não encontrado no estoque.", ft.Colors.RED)
 
     def handle_scan_compras(code):
+        page.dialog = dialog_add
+        dialog_add.open = True
         tf_codigo_barras_add.value = code
         page.update()
         buscar_produto_lista(None)
@@ -131,7 +133,9 @@ def compras_view(page: ft.Page) -> ft.Container:
     def abrir_add_manual(e):
         tf_codigo_barras_add.value = ""
         carregar_produtos_dropdown()
-        page.show_dialog(dialog_add)
+        page.dialog = dialog_add
+        dialog_add.open = True
+        page.update()
 
     def fechar_dialog(dialog):
         page.pop_dialog()
