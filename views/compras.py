@@ -84,9 +84,12 @@ def compras_view(page: ft.Page) -> ft.Container:
             mostrar_snackbar(page, "Produto não encontrado no estoque.", ft.Colors.RED)
 
     def handle_scan_compras(code):
-        if page.dialog != dialog_add:
-            page.dialog = dialog_add
-        dialog_add.open = True
+        try:
+            page.show_dialog(dialog_add)
+        except Exception:
+            dialog_add.open = False
+            page.update()
+            page.show_dialog(dialog_add)
         tf_codigo_barras_add.value = code
         page.update()
         buscar_produto_lista(None)
