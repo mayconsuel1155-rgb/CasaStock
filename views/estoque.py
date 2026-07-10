@@ -8,7 +8,7 @@ from database.models import Produto
 from components.dialogs import mostrar_snackbar, mostrar_confirmacao
 from components.botoes import botao_primario, botao_icone
 
-def estoque_view(page: ft.Page) -> ft.Container:
+def estoque_view(page: ft.Page, scan_code=None) -> ft.Container:
     user_id = getattr(page, 'casastock_user_id', 1)
     lista_produtos_ui = ft.ResponsiveRow()
     
@@ -59,16 +59,15 @@ def estoque_view(page: ft.Page) -> ft.Container:
              mostrar_snackbar(page, "Erro ao buscar produto na internet.", ft.Colors.RED)
 
     def handle_scan_estoque(code):
+        tf_codigo_barras.value = code
         try:
             page.show_dialog(dialog_form)
         except Exception:
             dialog_form.open = False
             page.update()
             page.show_dialog(dialog_form)
-        tf_codigo_barras.value = code
-        page.update()
         buscar_produto_por_codigo(None)
-    page.on_scan_estoque = handle_scan_estoque
+        page.update()
 
     tf_codigo_barras = ft.TextField(label="Código de Barras (Escaneie e dê Enter)", on_submit=buscar_produto_por_codigo, expand=True)
     row_codigo_barras = ft.Row([
@@ -222,6 +221,14 @@ def estoque_view(page: ft.Page) -> ft.Container:
             page.show_dialog(dialog_form)
 
     carregar_produtos()
+
+    if scan_code:
+        def process_scanned_code():
+            import time
+            time.sleep(0.5)
+            handle_scan_estoque(scan_code)
+        import threading
+        threading.Thread(target=process_scanned_code).start()
 
     return ft.Container(content=ft.Column([
             ft.Row([

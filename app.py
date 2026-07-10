@@ -19,40 +19,23 @@ def main(page: ft.Page):
     page.window.height = 800
     def route_change(e):
         if page.route.startswith("/scan_estoque/"):
-            code = page.route.split("/")[-1]
-            update_view(1)
+            parts = page.route.strip("/").split("/")
+            code = parts[-1] if parts else ""
+            
+            page.route = "/" 
+            update_view(1, scan_code=code)
             nav_rail.selected_index = 1
             nav_bar.selected_index = 1
             page.update()
             
-            def process_estoque():
-                import time
-                time.sleep(0.5)
-                if hasattr(page, "on_scan_estoque"):
-                    page.on_scan_estoque(code)
-            
-            import threading
-            threading.Thread(target=process_estoque).start()
+        elif page.route.startswith("/scan_compras/"):
+            parts = page.route.strip("/").split("/")
+            code = parts[-1] if parts else ""
             
             page.route = "/" 
-            page.update()
-        elif page.route.startswith("/scan_compras/"):
-            code = page.route.split("/")[-1]
-            update_view(2)
+            update_view(2, scan_code=code)
             nav_rail.selected_index = 2
             nav_bar.selected_index = 2
-            page.update()
-            
-            def process_compras():
-                import time
-                time.sleep(0.5)
-                if hasattr(page, "on_scan_compras"):
-                    page.on_scan_compras(code)
-            
-            import threading
-            threading.Thread(target=process_compras).start()
-            
-            page.route = "/" 
             page.update()
 
     page.on_route_change = route_change
@@ -94,18 +77,18 @@ def main(page: ft.Page):
         on_change=nav_change,
     )
 
-    def get_view(idx):
+    def get_view(idx, scan_code=None):
         if idx == 0: return dashboard_view(page)
-        elif idx == 1: return estoque_view(page)
-        elif idx == 2: return compras_view(page)
+        elif idx == 1: return estoque_view(page, scan_code)
+        elif idx == 2: return compras_view(page, scan_code)
         elif idx == 3: return historico_view(page)
         elif idx == 4: return configuracoes_view(page)
         elif idx == 5 and getattr(page, 'casastock_role', 'cliente') == 'superadmin': 
             return admin_panel_view(page)
         return dashboard_view(page)
 
-    def update_view(idx):
-        controls = get_view(idx)
+    def update_view(idx, scan_code=None):
+        controls = get_view(idx, scan_code)
         # Add smooth fade in effect
         main_container.content = ft.AnimatedSwitcher(
             content=controls,

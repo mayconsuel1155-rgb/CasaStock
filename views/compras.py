@@ -4,7 +4,7 @@ from services.estoque_service import EstoqueService
 from components.dialogs import mostrar_snackbar, mostrar_alerta
 from components.botoes import botao_primario, botao_secundario
 
-def compras_view(page: ft.Page) -> ft.Container:
+def compras_view(page: ft.Page, scan_code=None) -> ft.Container:
     user_id = getattr(page, 'casastock_user_id', 1)
     lista_compras_ui = ft.ResponsiveRow()
     itens_compra_atual = []
@@ -84,16 +84,15 @@ def compras_view(page: ft.Page) -> ft.Container:
             mostrar_snackbar(page, "Produto não encontrado no estoque.", ft.Colors.RED)
 
     def handle_scan_compras(code):
+        tf_codigo_barras_add.value = code
         try:
             page.show_dialog(dialog_add)
         except Exception:
             dialog_add.open = False
             page.update()
             page.show_dialog(dialog_add)
-        tf_codigo_barras_add.value = code
-        page.update()
         buscar_produto_lista(None)
-    page.on_scan_compras = handle_scan_compras
+        page.update()
 
     tf_codigo_barras_add = ft.TextField(label="Cód. Barras (Escaneie e Enter)", on_submit=buscar_produto_lista, expand=True)
     row_codigo_barras_add = ft.Row([
@@ -209,6 +208,14 @@ def compras_view(page: ft.Page) -> ft.Container:
         page.show_dialog(dialog_finalizar)
 
     carregar_lista()
+
+    if scan_code:
+        def process_scanned_code_compras():
+            import time
+            time.sleep(0.5)
+            handle_scan_compras(scan_code)
+        import threading
+        threading.Thread(target=process_scanned_code_compras).start()
 
     return ft.Container(
         content=ft.Column(
