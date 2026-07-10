@@ -20,12 +20,22 @@ def main(page: ft.Page):
     def route_change(e):
         if page.route.startswith("/scan_estoque/"):
             code = page.route.split("/")[-1]
+            update_view(1)
+            nav_rail.selected_index = 1
+            nav_bar.selected_index = 1
+            page.update()
+            
             if hasattr(page, "on_scan_estoque"):
                 page.on_scan_estoque(code)
             page.route = "/" 
             page.update()
         elif page.route.startswith("/scan_compras/"):
             code = page.route.split("/")[-1]
+            update_view(2)
+            nav_rail.selected_index = 2
+            nav_bar.selected_index = 2
+            page.update()
+            
             if hasattr(page, "on_scan_compras"):
                 page.on_scan_compras(code)
             page.route = "/" 
