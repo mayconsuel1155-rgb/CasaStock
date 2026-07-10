@@ -17,6 +17,21 @@ def main(page: ft.Page):
     page.title = "CasaStock Premium"
     page.window.width = 1000
     page.window.height = 800
+    def route_change(e):
+        if page.route.startswith("/scan_estoque/"):
+            code = page.route.split("/")[-1]
+            if hasattr(page, "on_scan_estoque"):
+                page.on_scan_estoque(code)
+            page.route = "/" 
+            page.update()
+        elif page.route.startswith("/scan_compras/"):
+            code = page.route.split("/")[-1]
+            if hasattr(page, "on_scan_compras"):
+                page.on_scan_compras(code)
+            page.route = "/" 
+            page.update()
+
+    page.on_route_change = route_change
     page.window.min_width = 350
     page.theme_mode = ft.ThemeMode.LIGHT
     
@@ -133,4 +148,4 @@ def main(page: ft.Page):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port, host="0.0.0.0")
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port, host="0.0.0.0", assets_dir="assets")

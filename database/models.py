@@ -13,6 +13,7 @@ class Produto:
     local: str
     observacoes: str
     data_cadastro: str
+    codigo_barras: str = ""
 
 @dataclass
 class Compra:

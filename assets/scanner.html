@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de Código de Barras</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+        #reader { width: 100%; max-width: 500px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 20px; text-align: center; }
+        p { color: #666; font-size: 14px; text-align: center; }
+        .btn { padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 5px; margin-top: 20px; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <h2>Escaneie o Código de Barras</h2>
+    <div id="reader"></div>
+    <p>Aponte a câmera para o código de barras do produto.</p>
+    <button class="btn" onclick="fechar()">Cancelar</button>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode') || 'estoque';
+
+        function fechar() {
+            if (window.opener) {
+                window.close();
+            } else {
+                window.location.href = '/#/';
+            }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            html5QrcodeScanner.clear().then(() => {
+                if (window.opener) {
+                    window.opener.location.hash = `/scan_${mode}/${decodedText}`;
+                    window.close();
+                } else {
+                    window.location.href = `/#/scan_${mode}/${decodedText}`;
+                }
+            }).catch(error => {
+                console.error("Failed to clear html5QrcodeScanner. ", error);
+            });
+        }
+
+        function onScanFailure(error) {}
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: {width: 250, height: 150} },
+            false);
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    </script>
+</body>
+</html>

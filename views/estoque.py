@@ -1,6 +1,9 @@
 import flet as ft
 from services.estoque_service import EstoqueService
 from services.compra_service import CompraService
+import urllib.request
+import json
+import urllib.error
 from database.models import Produto
 from components.dialogs import mostrar_snackbar, mostrar_confirmacao
 from components.botoes import botao_primario, botao_icone
@@ -11,6 +14,61 @@ def estoque_view(page: ft.Page) -> ft.Container:
     
     # Campos Formulário
     tf_id = ft.TextField(visible=False)
+    
+    def buscar_produto_por_codigo(e):
+        codigo = tf_codigo_barras.value.strip()
+        if not codigo: return
+        
+        # Tenta buscar no banco local primeiro
+        prod_local = EstoqueService.buscar_por_codigo_barras(codigo, user_id)
+        if prod_local:
+            tf_id.value = str(prod_local.id)
+            tf_nome.value = prod_local.nome
+            tf_categoria.value = prod_local.categoria
+            tf_qtde.value = str(prod_local.quantidade)
+            tf_qtde_min.value = str(prod_local.quantidade_minima)
+            tf_unidade.value = prod_local.unidade
+            tf_local.value = prod_local.local
+            tf_obs.value = prod_local.observacoes
+            mostrar_snackbar(page, "Produto carregado do estoque local!", ft.Colors.BLUE)
+            page.update()
+            return
+            
+        # Se não achou, busca no Open Food Facts
+        try:
+            url = f"https://world.openfoodfacts.org/api/v2/product/{codigo}.json"
+            req = urllib.request.Request(url, headers={'User-Agent': 'CasaStock/1.0'})
+            with urllib.request.urlopen(req, timeout=5) as response:
+                data = json.loads(response.read().decode())
+                if data.get('status') == 1:
+                    produto = data.get('product', {})
+                    nome_api = produto.get('product_name_pt') or produto.get('product_name', '')
+                    categoria_api = produto.get('categories', '').split(',')[0] if produto.get('categories') else ''
+                    if nome_api:
+                        tf_nome.value = nome_api
+                        tf_categoria.value = categoria_api
+                        mostrar_snackbar(page, "Dados encontrados na internet!", ft.Colors.GREEN)
+                        page.update()
+                    else:
+                        mostrar_snackbar(page, "Produto encontrado, mas sem nome em português.", ft.Colors.ORANGE)
+                else:
+                    mostrar_snackbar(page, "Produto não encontrado na internet. Preencha manualmente.", ft.Colors.ORANGE)
+        except urllib.error.URLError:
+             mostrar_snackbar(page, "Sem conexão com a internet para buscar o produto.", ft.Colors.RED)
+        except Exception:
+             mostrar_snackbar(page, "Erro ao buscar produto na internet.", ft.Colors.RED)
+
+    def handle_scan_estoque(code):
+        tf_codigo_barras.value = code
+        page.update()
+        buscar_produto_por_codigo(None)
+    page.on_scan_estoque = handle_scan_estoque
+
+    tf_codigo_barras = ft.TextField(label="Código de Barras (Escaneie e dê Enter)", on_submit=buscar_produto_por_codigo, expand=True)
+    row_codigo_barras = ft.Row([
+        tf_codigo_barras,
+        ft.IconButton(icon=ft.Icons.CAMERA_ALT, tooltip="Abrir Câmera", url=ft.Url(url='/scanner.html?mode=estoque', target='_blank'))
+    ])
     tf_nome = ft.TextField(label="Nome", expand=True)
     tf_categoria = ft.TextField(label="Categoria", expand=True)
     tf_qtde = ft.TextField(label="Qtde Atual", value="0", expand=True, keyboard_type=ft.KeyboardType.NUMBER)
@@ -99,7 +157,8 @@ def estoque_view(page: ft.Page) -> ft.Container:
             unidade=tf_unidade.value,
             local=tf_local.value,
             observacoes=tf_obs.value,
-            data_cadastro=""
+            data_cadastro="",
+            codigo_barras=tf_codigo_barras.value.strip()
         )
         EstoqueService.salvar_produto(p)
         page.pop_dialog()
@@ -110,6 +169,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
         title=ft.Text("Produto"),
         content=ft.Column([
             tf_id,
+            row_codigo_barras,
             tf_nome,
             tf_categoria,
             ft.Row([tf_qtde, tf_qtde_min]),
@@ -129,6 +189,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
     def abrir_form(produto=None):
         if produto:
             tf_id.value = str(produto.id)
+            tf_codigo_barras.value = getattr(produto, 'codigo_barras', '')
             tf_nome.value = produto.nome
             tf_categoria.value = produto.categoria
             tf_qtde.value = str(produto.quantidade)
@@ -138,6 +199,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
             tf_obs.value = produto.observacoes
         else:
             tf_id.value = ""
+            tf_codigo_barras.value = ""
             tf_nome.value = ""
             tf_categoria.value = ""
             tf_qtde.value = "0"

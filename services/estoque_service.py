@@ -36,6 +36,15 @@ class EstoqueService:
         row = cursor.fetchone()
         conn.close()
         return Produto(**dict(row)) if row else None
+
+    @staticmethod
+    def buscar_por_codigo_barras(codigo_barras: str, id_usuario: int) -> Produto:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Produtos WHERE codigo_barras=? AND id_usuario=?", (codigo_barras, id_usuario))
+        row = cursor.fetchone()
+        conn.close()
+        return Produto(**dict(row)) if row else None
         
     @staticmethod
     def salvar_produto(produto: Produto) -> Produto:
@@ -49,18 +58,18 @@ class EstoqueService:
             cursor.execute('''
                 UPDATE Produtos SET 
                     nome=?, categoria=?, quantidade=?, quantidade_minima=?, 
-                    unidade=?, local=?, observacoes=?
+                    unidade=?, local=?, observacoes=?, codigo_barras=?
                 WHERE id=? AND id_usuario=?
             ''', (produto.nome, produto.categoria, produto.quantidade, 
                   produto.quantidade_minima, produto.unidade, produto.local, 
-                  produto.observacoes, produto.id, produto.id_usuario))
+                  produto.observacoes, getattr(produto, 'codigo_barras', ''), produto.id, produto.id_usuario))
         else:
             cursor.execute('''
-                INSERT INTO Produtos (id_usuario, nome, categoria, quantidade, quantidade_minima, unidade, local, observacoes, data_cadastro)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO Produtos (id_usuario, nome, categoria, quantidade, quantidade_minima, unidade, local, observacoes, data_cadastro, codigo_barras)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (produto.id_usuario, produto.nome, produto.categoria, produto.quantidade, 
                   produto.quantidade_minima, produto.unidade, produto.local, 
-                  produto.observacoes, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                  produto.observacoes, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), getattr(produto, 'codigo_barras', '')))
             produto.id = cursor.lastrowid
             
         conn.commit()

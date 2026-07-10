@@ -70,6 +70,30 @@ def compras_view(page: ft.Page) -> ft.Container:
 
     dd_produto = ft.Dropdown(label="Selecione um Produto", expand=True)
     tf_qtde_add = ft.TextField(label="Qtde", value="1", width=100, keyboard_type=ft.KeyboardType.NUMBER)
+    
+    def buscar_produto_lista(e):
+        codigo = tf_codigo_barras_add.value.strip()
+        if not codigo: return
+        prod = EstoqueService.buscar_por_codigo_barras(codigo, user_id)
+        if prod:
+            # Set the dropdown value to the product's ID
+            dd_produto.value = str(prod.id)
+            mostrar_snackbar(page, f"Produto '{prod.nome}' selecionado!", ft.Colors.GREEN)
+            page.update()
+        else:
+            mostrar_snackbar(page, "Produto não encontrado no estoque.", ft.Colors.RED)
+
+    def handle_scan_compras(code):
+        tf_codigo_barras_add.value = code
+        page.update()
+        buscar_produto_lista(None)
+    page.on_scan_compras = handle_scan_compras
+
+    tf_codigo_barras_add = ft.TextField(label="Cód. Barras (Escaneie e Enter)", on_submit=buscar_produto_lista, expand=True)
+    row_codigo_barras_add = ft.Row([
+        tf_codigo_barras_add,
+        ft.IconButton(icon=ft.Icons.CAMERA_ALT, tooltip="Abrir Câmera", url=ft.Url(url='/scanner.html?mode=compras', target='_blank'))
+    ])
 
     def carregar_produtos_dropdown():
         dd_produto.options.clear()
@@ -93,8 +117,11 @@ def compras_view(page: ft.Page) -> ft.Container:
         carregar_lista()
 
     dialog_add = ft.AlertDialog(
-        title=ft.Text("Adicionar Item Manualmente"),
-        content=ft.Row([dd_produto, tf_qtde_add], width=400),
+        title=ft.Text("Adicionar Item à Lista"),
+        content=ft.Column([
+            row_codigo_barras_add,
+            ft.Row([dd_produto, tf_qtde_add])
+        ], width=400, tight=True),
         actions=[
             ft.TextButton("Cancelar", on_click=lambda e: fechar_dialog(dialog_add)),
             botao_primario("Adicionar", adicionar_manual)
@@ -102,6 +129,7 @@ def compras_view(page: ft.Page) -> ft.Container:
     )
 
     def abrir_add_manual(e):
+        tf_codigo_barras_add.value = ""
         carregar_produtos_dropdown()
         page.show_dialog(dialog_add)
 

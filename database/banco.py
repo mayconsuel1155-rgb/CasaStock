@@ -76,9 +76,23 @@ def init_db():
         unidade TEXT,
         local TEXT,
         observacoes TEXT,
-        data_cadastro TEXT NOT NULL
+        data_cadastro TEXT NOT NULL,
+        codigo_barras TEXT
     )
     ''')
+    
+    # Migração para adicionar codigo_barras caso não exista (bancos antigos)
+    try:
+        cursor.execute("SELECT codigo_barras FROM Produtos LIMIT 1")
+    except Exception:
+        # Se der erro, a coluna não existe (no sqlite ou postgres)
+        try:
+            # Precisa fazer rollback no postgres em caso de erro na transação
+            if DATABASE_URL:
+                conn.rollback()
+            cursor.execute("ALTER TABLE Produtos ADD COLUMN codigo_barras TEXT")
+        except Exception as e:
+            print(f"Erro ao adicionar coluna codigo_barras: {e}")
     
     # Tabela Compras
     cursor.execute('''
