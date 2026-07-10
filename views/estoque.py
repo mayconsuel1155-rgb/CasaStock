@@ -69,7 +69,7 @@ def estoque_view(page: ft.Page) -> ft.Container:
     tf_codigo_barras = ft.TextField(label="Código de Barras (Escaneie e dê Enter)", on_submit=buscar_produto_por_codigo, expand=True)
     row_codigo_barras = ft.Row([
         tf_codigo_barras,
-        ft.IconButton(icon=ft.Icons.CAMERA_ALT, tooltip="Abrir Câmera", url=ft.Url(url='/scanner.html?mode=estoque', target='_blank'))
+        ft.IconButton(icon=ft.Icons.CAMERA_ALT, tooltip="Abrir Câmera", url=ft.Url(url='/scanner.html?mode=estoque', target='_self'))
     ])
     tf_nome = ft.TextField(label="Nome", expand=True)
     tf_categoria = ft.TextField(label="Categoria", expand=True)

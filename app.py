@@ -134,6 +134,18 @@ def main(page: ft.Page):
         if hasattr(page, 'casastock_user') and page.casastock_user:
             on_login_success()
         else:
+            try:
+                if page.client_storage.contains_key("casastock_auth"):
+                    auth_result = page.client_storage.get("casastock_auth")
+                    if auth_result and isinstance(auth_result, dict):
+                        page.casastock_user = auth_result.get("username")
+                        page.casastock_user_id = auth_result.get("id")
+                        page.casastock_role = auth_result.get("role")
+                        on_login_success()
+                        return
+            except:
+                pass
+                
             page.navigation_bar = None
             page.controls.clear()
             page.add(get_login_view(page, on_login_success))

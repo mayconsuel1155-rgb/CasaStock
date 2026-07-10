@@ -34,12 +34,7 @@
 
         function onScanSuccess(decodedText, decodedResult) {
             html5QrcodeScanner.clear().then(() => {
-                if (window.opener) {
-                    window.opener.location.hash = `/scan_${mode}/${decodedText}`;
-                    window.close();
-                } else {
-                    window.location.href = `/#/scan_${mode}/${decodedText}`;
-                }
+                window.location.href = `/#/scan_${mode}/${decodedText}`;
             }).catch(error => {
                 console.error("Failed to clear html5QrcodeScanner. ", error);
             });
@@ -49,7 +44,13 @@
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
             "reader",
-            { fps: 10, qrbox: {width: 250, height: 150} },
+            { 
+                fps: 10, 
+                qrbox: {width: 250, height: 150},
+                videoConstraints: {
+                    facingMode: "environment"
+                }
+            },
             false);
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     </script>

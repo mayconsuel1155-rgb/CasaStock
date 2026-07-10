@@ -16,6 +16,10 @@ def get_login_view(page: ft.Page, on_login_success):
             page.casastock_user = auth_result["username"]
             page.casastock_user_id = auth_result["id"]
             page.casastock_role = auth_result["role"]
+            try:
+                page.client_storage.set("casastock_auth", auth_result)
+            except:
+                pass
             on_login_success()
         else:
             mostrar_snackbar(page, "Usuário ou senha incorretos!", ft.Colors.RED)

@@ -94,7 +94,7 @@ def compras_view(page: ft.Page) -> ft.Container:
     tf_codigo_barras_add = ft.TextField(label="Cód. Barras (Escaneie e Enter)", on_submit=buscar_produto_lista, expand=True)
     row_codigo_barras_add = ft.Row([
         tf_codigo_barras_add,
-        ft.IconButton(icon=ft.Icons.CAMERA_ALT, tooltip="Abrir Câmera", url=ft.Url(url='/scanner.html?mode=compras', target='_blank'))
+        ft.IconButton(icon=ft.Icons.CAMERA_ALT, tooltip="Abrir Câmera", url=ft.Url(url='/scanner.html?mode=compras', target='_self'))
     ])
 
     def carregar_produtos_dropdown():
