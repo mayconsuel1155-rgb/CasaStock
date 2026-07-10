@@ -137,7 +137,12 @@ def main(page: ft.Page):
         nav_bar.destinations = [ft.NavigationBarDestination(icon=d["icon"], selected_icon=d["selected_icon"], label=d["label"]) for d in dests]
         
         handle_resize(None)
-        update_view(0)
+        
+        if page.route.startswith("/scan_estoque/") or page.route.startswith("/scan_compras/"):
+            route_change(None)
+        else:
+            update_view(0)
+            
         page.update()
 
     def check_auth():
